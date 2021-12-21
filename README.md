@@ -3,6 +3,7 @@
 #!pip install requests==2.26.0
 !mamba install bs4==4.10.0 -y
 #!pip install plotly==5.3.1
+# import libraries
 import yfinance as yf
 import pandas as pd
 import requests
