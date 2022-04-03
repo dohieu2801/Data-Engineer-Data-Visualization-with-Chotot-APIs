@@ -1,6 +1,6 @@
 ---
 title: "Bài Tập Nhóm 2: Chọn Mô Hình"
-author: "Nhóm: Trần Thị Như Xuân - Hồ Thị Thanh Thúy - Đỗ Danh Hiếu"
+author: "Hồ Thị Thanh Thúy"
 date: "April, 1 2022"
 output: html_document
 ---
