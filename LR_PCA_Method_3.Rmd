@@ -1,0 +1,352 @@
+---
+title: "Bài Tập Nhóm 2: Chọn Mô Hình"
+author: "Nhóm: Trần Thị Như Xuân - Hồ Thị Thanh Thúy - Đỗ Danh Hiếu"
+date: "April, 1 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Bài 2: Hồi quy trên thành phần chính
+*Link data: https://data.world/nrippner/ols-regression-challenge*
+
+### 2.1 Mô tả các biến trong bộ dữ liệu
+
+Bộ dữ liệu **“cancer_reg.csv”** được dùng để giải thích tỷ lệ tử vong do bệnh ung thư được thu thập trong các quận của nước Mỹ. Các biến bao gồm:
+
+**TARGET_deathRate**: Biến phụ thuộc. Tỷ lệ tử vong trung bình do ung thư (trên 100000 người)
+
+**avgAnnCount**: Số lượng ung thư trung bình được báo cáo hằng năm
+
+**avgDeathsPerYear**: Số ca tử vong trung bình được báo cáo do ung thư
+
+**incidenceRate**: Trung bình trên đầu người (trên 100.000 người) được chẩn đoán ung thư
+
+**medianIncome**: Thu nhập trung bình thuộc quận đó
+
+**popEst2015**: Dân số trung bình của quốc gia đó
+
+**povertyPercent**: Tỷ lệ dân số thuộc hộ nghèo
+
+**studyPerCap**: Số lượng thử nghiệm lâm sàng liên quan đến ung thư trên đầu người trên mỗi quận
+
+**binnedInc**: Thu nhập trung bình trên đầu người tính theo decile
+
+**MedianAge**: Tuổi trung vị của người dân
+
+**MedianAgeMale**: Tuổi trung vị của nam cư dân thuộc quận đó
+
+**MedianAgeFemale**: Tuổi trung vị của nữ cư dân thuộc quận đó
+
+**Geography**: Tên quận	
+
+**AvgHouseholdSize**: Quy mô hộ gia đình của quận
+
+**PercentMarried**: Tỷ lệ người dân đã lập gia đình của mỗi quận
+
+**PctNoHS18_24**: Phần trăm cư dân quận trong độ tuổi 18-24 đạt được trình độ học vấn cao nhất thấp hơn trung học
+
+**PctHS18_24**: Phần trăm cư dân quận trong độ tuổi 18-24 đạt được trình độ học vấn cao nhất: bằng tốt nghiệp trung học phổ thông
+
+**PctSomeCol18_24**: Phần trăm cư dân quận trong độ tuổi 18-24 đạt được trình độ học vấn cao nhất: một số trường cao đẳng
+
+**PctBachDeg18_24**: Phần trăm cư dân quận trong độ tuổi 18-24 đạt được trình độ học vấn cao nhất là cử nhân
+
+**PctHS25_Over**: Phần trăm cư dân quận từ 25 tuổi trở lên đạt được trình độ học vấn cao nhất là tốt nghiệp trung học phổ thông
+
+**PctBachDeg25_Over**: Phần trăm cư dân quận từ 25 tuổi trở lên đạt được trình độ học vấn cao nhất là cử nhân
+
+**PctEmployed16_Over**: Phần trăm cư dân quận từ 16 tuổi trở lên có việc làm
+
+**PctUnemployed16_Over**: Phần trăm cư dân quận từ 16 tuổi trở lên thất nghiệp
+
+**PctPrivateCoverage**: Phần trăm cư dân quận có bảo hiểm y tế tư nhân
+
+**PctPrivateCoverageAlone**: Tỷ lệ phần trăm cư dân quận chỉ có bảo hiểm y tế tư nhân (không có hỗ trợ công)
+
+**PctEmpPrivCoverage**: Phần trăm cư dân quận có bảo hiểm y tế tư nhân do công ty cung cấp
+
+**PctPublicCoverage**: Phần trăm cư dân quận có bảo hiểm y tế do chính phủ cung cấp
+
+**PctPubliceCoverageAlone**: Tỷ lệ phần trăm cư dân quận có bảo hiểm y tế do chính phủ cung cấp riêng
+
+**PctWhite**: Phần trăm cư dân quận xác định là Da trắng
+
+**PctBlack**: Phần trăm cư dân quận xác định là Da 
+
+**PctAsian**: Phần trăm cư dân quận xác định là người Châu Á
+
+**PctOtherRace**: Phần trăm cư dân quận xác định trong danh mục không phải là Da trắng, Da đen hoặc Châu Á
+
+**PctMarriedHouseholds**: Phần trăm hộ gia đình đã kết hôn
+
+**BirthRate**: Tỷ lệ sinh em bé so với cư dân nữ trong quận.
+
+Bộ dữ liệu có tổng cộng 34 biến, trong đó có 33 biến giải thích và 1 biến phụ thuộc **TARGET_deathRate**, khảo sát được thực hiện có 3047 quan sát, tương ứng với 3047 quận được lấy khảo sát.
+
+### 2.2. Các thống kê mô tả và làm sạch dữ liệu
+
+```{r}
+getwd()
+setwd("C:/Users/PC/Documents/Docs/Statistics/Linear Regression/Project Nhom")
+#Read data
+data <-  read.csv(file = "cancer_reg.csv", header = TRUE)
+```
+
+Do **Geography** là xác định tên quận và **binnedInc** là thu nhập trung bình theo đơn vị khác (đã có **medianIncome** là biến liên quan đến trung bình thu nhập của quận) nên hai biến **Geography** và **binnedInc** có thể được bỏ qua.
+
+```{r}
+data <- subset(data, select = -c(Geography,binnedInc))
+dim(data)
+```
+
+**a. Xử lý các quan sát bị thiếu**
+
+Để đảm bảo chất lượng của bộ dữ liệu tốt cho việc chọn mô hình, chúng ta sẽ không xét đến những biến có hơn 70% quan sát bị thiếu.
+Dựa vào kết quả bên dưới, có gần 75% quan sát bị thiếu ở biến **PctSomeCol18_24** nên biến trên bị loại ra khỏi bộ dữ liệu.
+
+```{r}
+i = 0
+col_na = c()
+columns = colnames(data)
+for (col in columns) {
+  sum_na = sum(is.na(data[[col]]))
+  nrow = nrow(data)
+  na_rate <- sum_na/nrow
+  if(na_rate >= 0.7) {
+    col_na = append(col_na,col)
+    i = i+1
+    print(paste(col,": ",na_rate,"--> remove"))
+  }
+  else {
+    print(paste(col,": ",na_rate))
+  }
+}
+data <- subset(data, select = -c(PctSomeCol18_24))
+```
+
+Ngoài ra, **PctPrivateCoverageAlone** có gần 20% và **PctEmployed16_Over** có gần 5% điểm dữ liệu bị thiếu, chúng ta sử dụng trung vị của hai biến trên để thay thế cho các điểm dữ liệu bị thiếu.
+
+```{r}
+#Replace NaN by median
+#install.packages("robustbase")
+library(robustbase)
+
+cMedian <- colMedians(data.matrix(data), na.rm = TRUE, hasNA = TRUE, keep.names=TRUE)
+indx <- which(is.na(data), arr.ind=TRUE)
+data[indx] <- cMedian[indx[,2]]
+```
+
+**b.Một số thống kê mô tả**
+```{r}
+col_name_1 = colnames(data[,1:12])
+col_name_1 <- as.vector(col_name_1)
+col_name_2 = colnames(data[,13:24])
+col_name_2 <- as.vector(col_name_2)
+col_name_3 = colnames(data[,24:31])
+col_name_3 <- as.vector(col_name_3)
+
+#Histogram
+par(mfrow = c(3,4))
+for (col in col_name_1) {
+  hist(data[[col]],xlab=col,main = col)
+}
+
+par(mfrow = c(3,4))
+for (col in col_name_2) {
+  hist(data[[col]],xlab=col,main = col)
+}
+par(mfrow = c(2,4))
+for (col in col_name_3) {
+  hist(data[[col]],xlab=col,main = col)
+}
+```
+
+Histogram của một số biến độc lập cho thấy ngoài một các biến có histogram tương đối đều hai bên như **PctHS18_24**,  **PctPrivateCoverage**, **PctPrivateCoverage88** thì một số biến có histogram có sự nghiêng về một phía (bên trái hoặc bên phải) nhiều như **avgAnnCount**, **avgDeathsPerYear**, **incidenceRate**, **popEst2015**, **studyPerCap**, **MedianAge**.
+Dựa vào các boxplot như bên dưới, ta thấy các biến có nhiều điểm ngoại lai xuất hiện nhiều tại các biến có histogram nghiêng nhiều về một phía:
+
+```{r}
+#Boxplot and histogram group 2
+
+par(mfrow = c(3,4))
+for (col in col_name_1) {
+  boxplot(data[[col]],xlab=col,main = col)
+}
+par(mfrow = c(3,4))
+for (col in col_name_2) {
+  boxplot(data[[col]],xlab=col,main = col)
+}
+par(mfrow = c(2,4))
+for (col in col_name_3) {
+  boxplot(data[[col]],xlab=col,main = col)
+}
+```
+
+Bằng phương pháp IQR, các điểm ngoại lai được xác định là những điểm ngoài [Q1-3*IQR,Q3+3IQR]. Số lượng các điểm ngoại lai tính được trên từng biến trên như sau:
+
+```{r}
+#Outliers base on IQR
+col_name = colnames(data)
+col_name <- as.vector(col_name)
+c_outliers_length = c()
+c_outliers_name = c()
+a_outliers_index = c()
+for (col in col_name) {
+  Q1 <- quantile(data[[col]], .25)
+  Q3 <- quantile(data[[col]], .75)
+  IQR <- Q3-Q1
+  a_index = which(data[[col]] > (Q3 + 3*IQR)|data[[col]] < (Q1 - 3*IQR))
+  
+  c_outliers_name = append(c_outliers_name,col)
+  c_outliers_length= append(c_outliers_length,length(a_index))
+  df_outliers = data.frame(c_outliers_name,c_outliers_length)
+  a_outliers_index = append(a_outliers_index,a_index)
+}
+#DataFrame Outliers
+df_outliers
+#Number Observations will be remove if using IQR
+length(unique(a_outliers_index))
+```
+
+Số lượng quan sát phải loại nếu sử dụng IQR theo cách trên là 1139 điểm quan sát. So với kích thước mẫu là 3047 thì số điểm phải loại khá lớn, chiếm 37.38%, thay vì chỉ loại 5% các điểm ngoại lai, nếu loại tất cả các điểm dữ liệu theo cách trên thì chúng ta đã gây lãng phí mẫu thu thập được và cũng gây ảnh hưởng đến kết quả hồi quy của mô hình. Thay vì xác định và loại các điểm ngoại lai của từng biến một cách riêng lẽ bằng IQR như thế, một cách tiếp cận khác để loại điểm ngoại lai là sử dụng khoảng cách Cook's trong mô hình hồi quy đầy đủ các biến độc lập (áp dụng trang 290, Applied Statistic with R 2021), các điểm ngoại lai được loại là những điểm gây ảnh hưởng mạnh, làm tăng lên phần dư của mô hình hồi quy.
+
+```{r}
+#Outliers base on cook distance
+
+model_all <- lm(TARGET_deathRate ~ ., data=data) #Full independent varible
+summary(model_all)
+
+op = par(mfrow = c(1,1))
+cooksD <- cooks.distance(model_all) #Cook's distance
+n <- nrow(data) #number of observation
+influential_obs <- as.numeric(names(cooksD)[(cooksD > (4/n))]) #Formula Cook's Distance
+length(influential_obs) # number of outlier
+plot(cooksD, main = "Cooks Distance for Influential Obs")
+abline(h = 4/n, lty = 2, col = "red")
+data_2 <- data[-influential_obs, ] #data after removed outliers
+```
+Bằng cách sử dụng công thức khoảng cách Cook's trên mô hình hồi quy với tất cả các biến, số điểm ngoại lai cần được loại là 227 quan sát.
+
+**Kiểm tra tương quan**
+
+Ma trận hệ số tương quan của các biến thu được như sau
+
+```{r}
+library(psych)
+corPlot(data_2,numbers=TRUE,colors=TRUE)
+```
+
+Các cặp biến sau có hệ số tương quan cao hơn 0.75
+
+```{r}
+corr_check <- function(Dataset, threshold){
+  matriz_cor <- cor(Dataset)
+  for (i in 1:nrow(matriz_cor)){
+    correlations <-  which((abs(matriz_cor[i,i:ncol(matriz_cor)]) > threshold) & (matriz_cor[i,i:ncol(matriz_cor)] != 1))
+  
+    if(length(correlations)> 0){
+      lapply(correlations,FUN =  function(x) (cat(paste(colnames(Dataset)[i], "with",colnames(Dataset)[x]), "\n")))
+     
+}}}
+corr_check(subset(data_2, select = -c(TARGET_deathRate )), 0.75)
+```
+
+**Kiểm tra hiện tượng đa cộng tuyến**
+
+```{r}
+#Check multicollinearity
+model_2 <- lm(TARGET_deathRate ~ ., data=data_2)  #Full model with data after removed outliers
+#install.packages("caTools")    # For Linear regression 
+#install.packages('car')        # To check multicollinearity 
+library(car)
+vif <- data.frame(vif(model_2))
+vif
+```
+Loại 9 biến sau do hệ số VIF > 10: **avgDeathsPerYear**, **popEst2015**, **MedianAgeMale**, **MedianAgeFemale**, **PercentMarried**, **PctPrivateCoverage**, **PctPublicCoverage**, **PctPublicCoverageAlone**, **PctWhite**
+
+```{r}
+data_3 <- subset(data_2, select = -c(avgDeathsPerYear,popEst2015,MedianAgeFemale,MedianAgeMale,PercentMarried,PctPrivateCoverage,PctPublicCoverage,PctPublicCoverageAlone,PctWhite))
+
+dim(data_3)
+```
+
+Tóm tắt các bước xử lý dữ liệu: Bộ dữ liệu ban đầu có 3047 quan trắc với 31 biến độc lập, chúng ta loại 2 biến **Geography** và **binnedInc** do không sử dụng đến, tiếp theo xét đến các điểm dữ liệu bị thiếu, chúng ta loại bỏ biến **PctSomeCol18_24** do có hơn 70% điểm dữ liệu bị thiếu, còn lại có hai biến có điểm dữ liệu bị thiếu được thay thế bằng median của hai biến đó.
+Để xử lý các điểm ngoại lai chúng ta xem xét trực quan bằng boxplot cho từng biến riêng biệt, quan sát có nhiều biến có điểm ngoại lai, sử dụng phương pháp loại cực ngoại lai bằng IQR không giữ được chất lượng của bộ dữ liệu do số lượng outlier bị loại khá lớn, hơn 30% dữ liệu. Do đó chúng ta sử dụng cách tiếp cận khác, dùng khoảng cách Cook's dựa trên mô hình hồi quy đầy đủ các biến độc lập để loại các điểm có tác động mạnh đến phần dư của mô hình hồi quy.
+Với cách làm trên thì số lượng điểm ngoại lai giảm xuống còn 227 điểm ngoại lai.
+Sau đó xét đến độ tương quan giữa các biến độc lập trên bộ dữ liệu đã loại đi điểm ngoại lai, quan sát thấy có nhiều cặp biến có hệ số tương quan cao hơn 0.75 nên có thể tồn tại hiện tượng đa cộng tuyến. Dùng chỉ số VIF, chúng ta loại được 9 biến có VIF > 10. Vậy sau khi thực hiện các bước làm sạch, chúng ta thực hiện chọn mô hình trên bộ dữ liệu còn lại 2820 quan sát với 21 biến độc lập và một biến phụ thuộc.
+
+
+### 2.3 Hồi quy trên thành phần chính
+*Chia tập data để train và test*
+Bộ dữ liệu được chia với tỷ lệ 80% cho tập train và 20% cho tập test.
+```{r}
+#install.packages("tidyverse")
+#install.packages("caret")
+#install.packages("pls")
+library(tidyverse)
+library(caret)
+library(pls)
+
+#Split data
+set.seed(123)
+training.samples <- data_3$TARGET_deathRate %>% createDataPartition(p = 0.8, list = FALSE)
+train.data <- data_3[training.samples, ]
+test.data <- data_3[-training.samples,]
+```
+*Mô hình hồi quy trên thành phần chính*
+Với scale = TRUE, dữ liệu đã được chuẩn hóa trước khi thực hiện các bước tìm thành phần chính.
+```{r}
+#Computing Priciple Component
+#Training
+set.seed(123)
+model_pcr <- train(
+  TARGET_deathRate~., data=train.data, method = 'pcr',
+  scale = TRUE, #data is standardized before running the pcr algorithm on it 
+  trControl = trainControl("cv",number = 10), #10 fold cross-validation
+  tuneLength = 10
+)
+#plot(model_pcr)
+summary(model_pcr$finalModel)
+```
+
+Giải thích kết quả của mô hình: Phần trăm biến thiên của biến **TARGET_deathRate** được giải thích bởi các thành phần chính như sau:
+
++ Với một thành phần chính thứ nhất, chúng ta giải thích được 30.17% sự biến thiên của **TARGET_deathRate**
+
++ Khi thêm thành phần chính thứ hai vào, chúng ta giải thích được 43.43% sự biến thiên của **TARGET_deathRate**
+
++ Khi thêm thành phần chính thứ ba vào, chúng ta giải thích được 51.88% sự biến thiên của **TARGET_deathRate**
+
+Khi thêm các thành phần chính vào thì tỷ lệ giải thích sự biến thiên của **TARGET_deathRate** càng tăng, khi có 10 thành phần chính, thì chúng ta giải thích được 82.48% sự biến thiên của **TARGET_deathRate**. 
+
+```{r}
+plot(model_pcr)
+```
+
+Dựa vào biểu đồ trên, sai số RMSE của mô hình trong tập Cross_Validation giảm mạnh khi thêm lần lượt 1,2,3 và 4 thành phần chính. Sai số giảm mạnh nhất khi thêm thành phần chính thứ 4 vào mô hình có ba thành phần chính đầu tiên. Sau đó sai số của mình không giảm đi nhiều nữa.
+Tuy nhiên, chúng ta chọn mô hình có 10 thành phần chính thay vì mô hình có 4 thành phần chính đầu tiên, do với 4 thành phần chính đầu tiên, chúng ta chỉ giải thích được 57.34% sự biến thiên của **TARGET_deathRate**, còn với 10 thành phần chính chúng ta mới đủ để giải thích 80% sự biến của biến phụ thuộc.
+
+
+*Đánh giá sai số*
+```{r}
+#Prediction
+predictions <- model_pcr %>% predict(test.data)
+#predictions
+#test.data$TARGET_deathRate
+
+data.frame(
+  RMSE = caret::RMSE(predictions,test.data$TARGET_deathRate),
+  Rsquare = caret::R2(predictions,test.data$TARGET_deathRate)
+)
+```
+Kết quả dự đoán được đánh giá trên tập test có Rsquare = 58.75%. 
+
+### 2.4 Kết luận
+
+Kết luận: Từ bộ dữ liệu đã cho ban đầu thu thập với rất nhiều biến, 33 biến độc lập, sau khi thực hiện các bước tiền xử lý còn lại 21 biến và với việc sử dụng phương pháp giảm số chiều PCA, chúng ta chọn mô hình hồi quy trên 10 thành phần chính tốt nhất, giải thích 58.75% tỷ lệ biến thiên của **TARGET_deathRate** - tỷ lệ tử vong do bệnh ung thư.
+Phương pháp hồi quy trên thành phần chính ứng dụng tốt trong trường hợp có nhiều biến độc lập, giúp giảm số chiều.Tuy nhiên kết quả của mô hình hồi quy thu được là dựa trên các thành phần chính, mà mỗi thành phần chính lại là tổ hợp tuyến tính của các biến độc lập ban đầu. Do đó, chúng ta khó có thể diễn giải ý nghĩa của từng yếu tố được thu thập ban đầu (như **povertyPercent**: Tỷ lệ dân số thuộc hộ nghèo, **medianIncome**: Thu nhập trung bình thuộc quận đó,...) có ý nghĩa như thế nào đối tỷ lệ tử vong do ung thư ở các quận của Hoa Kỳ.
+
+Hướng tiếp theo nếu có thể làm thêm: Thực hiện phương pháp chọn mô hình hồi quy bội bằng phương pháp stepwise hoặc stagewise để chọn ra mô hình hồi quy bội tốt nhất và giải thích sự biến thiên của tỷ lệ tử vong do bệnh ung thư ở các quận Hoa Kỳ dựa trên các biến đã được thu thập.
