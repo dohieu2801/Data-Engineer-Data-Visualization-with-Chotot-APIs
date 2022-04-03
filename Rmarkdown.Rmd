@@ -1,0 +1,240 @@
+---
+title: "BT_GROUP5"
+author: "HoThanhThuy"
+date: '2022-03-31'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Bài 1: Sử dụng phương pháp Stepwise với tiêu chí AIC để xác định mô hình
+*Link data: <https://www.kaggle.com/code/renaudgendron/multiple-linear-regression-price/data>*
+
+## 1.1)Giải thích ý nghĩa của các biến trong mô hình:
+Bộ dữ liệu **“Real estate.csv”** được thu thập để giải thích giá nhà theo thời gian tại một khu vực. Dữ liệu gồm các biển sau:
+
+  **X1** transaction date: Thời gian xảy ra giao dịch mua bán nhà (specific time zone)
+  
+  **X2** house age: Tuổi của ngôi nhà (năm)
+  
+  **X3** distance to the nearest MRT station: Khoảng cách gần nhất từ ngôi nhà đi đến sân     ga(mét)
+  
+  **X4** number of convenience stores: Số cửa hàng tiện lợi gần ngôi nhà
+  
+  **X5** latitude: Vĩ độ
+  
+  **X5** latitude: Kinh độ
+  
+  **Y** house price of unit area: Giá bán ngôi nhà (currency/m^2) (Currency được hiểu là    đơn vị tiền tệ do vùng quy định)
+  
+Ở đây ta cần chọn mô hình phù hợp để giải thích cho sự biến động của giá nhà theo thời gian
+
+## 1.2) Chọn mô hình:
+
+**1.2.1) Thống kê mô tả:**
+  
+```{r}
+#Read data from file
+setwd("C:/Users/phuon/Downloads/RStudio/R/win-library/4.1")
+data_1<-read.csv("Real estate.csv",TRUE,",")
+head(data_1)
+```
+```{r}
+#Change name cols and remove "No" col
+data_1<-data_1[,2:8]#remove col "no" in data
+names(data_1)=c('X1','X2','X3','X4','X5','X6','Y')#change cols name
+head(data_1)
+```
+```{r}
+#Descriptive Statistics
+#install.packages("pastecs")
+library('pastecs')
+stat.desc(data_1,desc = F)
+```
+Ta thấy data gồm có 414 dòng và 7 cột (trong đó gồm 6 biến giải thích X1-X6 và một biến phụ thuộc y, không tồn tại giá trị missing value. Range của biến X3 khá lớn nên có thể nhận định biến X3 sẽ có nhiều giá trị outlier, cần đặc biệt quan tâm khi loại outlier của biến này.
+
+**1.2.2)Xử lý các giá trị để đảm bảo chất lượng dữ liệu trước khi hồi quy:**
+
+*a)Xét hiện tượng đa cộng tuyến:*
+
+```{r pressure, echo=FALSE}
+#install.packages("corrplot")
+library('corrplot')
+corrplot(cor(data_1),method='number')
+```
+
+Dựa vào corplot ta có nhận xét cần quan tâm đến sự tương quan giữa biến (X3 ,X6 với hệ số tương quan là 0.81). Tuy nhiên, để chắc chắn hơn ta xét hệ số tương quan VIF
+```{r}
+#install.package("car")
+library('car')
+model_all<-lm(Y~.,data = data_1)
+vif(model_all)
+```
+Vì VIF của cả 6 biến giải thích đều nhỏ hơn 5 nên ta có thể nhận xét là không tồn tại hiện tượng đa cộng tuyến giữa các biến giải thích.
+
+*b)Loại bỏ các giá trị ngoại lai trong tập:*
+
+```{r}
+dim(data_1)
+op <- par(mfrow=c(3,2))
+boxplot(data_1$X1)
+boxplot(data_1$X2)
+boxplot(data_1$X3)
+boxplot(data_1$X4)
+boxplot(data_1$X5)
+boxplot(data_1$X6)
+```
+Với boxplot ta thấy biến X3, X5, X6 có tồn tại giá trị ngoại lai. Ta xét chi tiết từng biến để quyết định rõ xem loại các quan trắc nào.
+
+**•	Với biến X3:**
+
+```{r}
+boxplot(data_1$X3)
+```
+```{r}
+out <- boxplot.stats(data_1$X3)$out
+out_ind_3 <- which(data_1$X3 %in% c(out))
+out_ind_3
+```
+Với biến X3 ta nhận thấy có đến 37 giá trị outlier. Loại 37 quan trắc này đồng nghĩa vói việc loại gần 10% dữ liệu. Do đó, ta chỉ nên loại các giá trị cực ngoại lai. Ở đây dựa vào boxplot ta chỉ remove các giá trị X3 lớn hơn 5000.
+```{r}
+out_ind_3<- which(data_1$X3>=5000)
+out_ind_3
+data_1<-data_1[-c(9,117,250,256,348),]
+dim(data_1)
+```
+Lúc này, số quan trắc còn lại là 409.
+
+**•	Với biến X5:**
+
+```{r}
+boxplot(data_1$X5)
+
+```
+```{r}
+#view index data outlier
+out <- boxplot.stats(data_1$X5)$out
+out_ind_5 <- which(data_1$X5 %in% c(out))
+out_ind_5
+```
+Với biến X5, có 8 giá trị ngoại lai, vì số lượng quan trắc còn lại là 410 nên ta có thể loại toàn bộ outlier của biến X5.
+```{r}
+data_1<-data_1[-c(35,116,147,193,227,317,326,378),]
+dim(data_1)
+```
+Lúc này, số quan trắc còn lại là 402.
+
+**•	Với biến X6:**
+
+```{r}
+boxplot(data_1$X6)
+```
+```{r}
+#view index outlier
+out <- boxplot.stats(data_1$X6)$out
+out_ind_6 <- which(data_1$X6 %in% c(out))
+out_ind_6
+```
+Vì số lượng outlier của biến X6 khá lớn nên dựa vào boxplot ta sẽ loại bỏ các giá trị ngoại lai nhỏ hơn 121.50 ra khỏi data.
+```{r}
+out_ind_6<- which(data_1$X6<=121.50)
+out_ind_6
+```
+```{r}
+#remove outlier X6
+data_1<-data_1[-c(30,47,48,57,166,176,226,321,382),]
+dim(data_1)
+```
+
+*Số quan trắc còn lại là 392/414. Ta thấy số lượng loại các quan trắc có giá trị outlier khá nhỏ so với số lượng quan trắc của tập dữ liệu nên sẽ không ảnh hưởng hoặc ảnh hưởng rất nhỏ đến kết quả hồi quy mô hình.*
+
+**1.2.3) Lựa chọn mô hình:**
+
+*Sử dụng phương pháp Stepwise với tiêu chí AIC để chọn mô hình.*
+
+```{r}
+model_price<-lm(Y~.,data = data_1)
+d1=step(model_price,direction = c("backward"))
+```
+Kết quả cho ra mô hình với AIC=1693.7 với các biến X1-X5 là tốt nhất.
+Tiếp theo ta đi kiểm định lại ý nghĩa của các biến trong mô hình.
+```{r}
+summary(d1)
+
+```
+Kết quả thu được là biến Y(giá nhà) được giải thích bởi các biến X1 (transaction date), X2(house age) ,X3(distance to the nearest MRT station) ,X4(number of convenience stores), X5(latitude). Tất cả các biến này đều có ý nghĩa trong mô hình với mức ý nghĩa là 0.001. Vậy ta có thể kết luận với 57.81% dữ liệu của các biến X1,X2,X3,X4,X5 giải thích cho biến Y (giá nhà). Mô hình này có thể chấp nhận được.
+
+**1.2.4) Một số kiểm định**
+
+*a) Kiểm định sai số có phân phối chuẩn N(0,σ)*
+```{r}
+#shapiro test
+r=lm(formula = Y ~ X1 + X2 + X3 + X4 + X5, data = data_1)
+shapiro.test(r$residuals)
+```
+Với giả thuyết H(0) là sai số tuân theo phân phối chuẩn. Giá trị P-value ở trên nhỏ hơn mức ý nghĩa 0.001 nên ta bác bỏ H(0). Tức sai số không tuân theo phân phối chuẩn.
+
+*b) Kiểm định tính ổn định của phương sai:*
+
+```{r}
+#plot
+op <- par(mfrow=c(2,2))
+plot(r)
+```
+```{r}
+#bptest
+#install.packages("lmtest")
+library('lmtest')
+bptest(r)
+```
+Với giả thuyết H(0) là phương sai không đổi, Giá trị p-value =0.39, vậy ta không đủ cơ sở để bác bỏ H(0) tức phương sai không có sự thay đổi.
+
+## 1.3)Chuẩn hóa dữ liệu để kết quả có thể thu được tốt hơn hay không
+
+Với y=log(y). 
+
+```{r}
+data_1$Y<-log(data_1$Y)
+head(data_1)
+```
+
+Tiếp tục sử dụng Stepwise để lựa chọn mô hình.
+```{r}
+model_p<-lm(Y~.,data = data_1)
+d2=step(model_p,direction = c("backward"))
+```
+Với AIC=-1220.68 ta thu được mô hình tốt nhất gồm các biến giải thích X1-X5.
+Ta tiến hành kiểm định lại ý nghĩa của các biến trong mô hình.
+```{r}
+summary(d2)
+
+```
+Sau khi lấy log(Y) ta thấy mô hình có ý nghĩa với 67.43% dữ liêu của biến X giải thích cho Y (giá bán). Giá bán nhà Y sẽ có mối quan hệ tuyến tính thuận với biến X1, X4, X5 và mối quan hệ tuyến tính nghịch với X2, X3.
+
+*Kiểm định sai số có phân phối chuẩn N(0,σ)*
+
+```{r}
+rs=lm(formula = Y ~ X1 + X2 + X3 + X4 + X5, data = data_1)
+shapiro.test(rs$residuals)
+```
+Sau khi lấy log(Y) ta thấy mô hình thu được với các biến X1 (transaction date), X2(house age) ,X3(distance to the nearest MRT station) ,X4(number of convenience stores), X5(latitude) đều có ý nghĩa trong mô hình giải thchs cho biến Y (giá nhà).
+Với 67.43% dữ liêu của biến X giải thích cho Y (giá bán). Giá bán nhà Y sẽ có mối quan hệ tuyến tính thuận với biến X1, X4, X5 và mối quan hệ tuyến tính nghịch với X2, X3.
+
+*Kiểm định lại tính chuẩn của sai số:*
+
+```{r}
+#plot
+op <- par(mfrow=c(2,2))
+plot(rs)
+```
+
+Ta thấy đồ thị thể hiện mối tương quan của Residual vs Fitted và sqrt{standard residual} fit hơn so với ban đầu. Điều này có nghĩa với y=log(y) có tính ổn định hơn với mô hình ban đầu.
+
+```{r}
+#bptest
+bptest(rs)
+```
+Với giả thuyết H(0) là phương sai không đổi, Giá trị p-value =0.39, vậy ta không đủ cơ sở để bác bỏ H(0) tức phương sai không có sự thay đổi.
+*Vậy: với Y=log(Y) ta thu được mô hình tốt hơn với hệ số xác định R cao hơn so với mô hình ban đầu.*
