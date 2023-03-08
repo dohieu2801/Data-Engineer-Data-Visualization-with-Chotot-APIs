@@ -1,0 +1,41 @@
+postgre:
+    host: dpg-cfu36gha6gdotc98km10-a.oregon-postgres.render.com
+    user: user_chotot
+    passwd: 7Y9nTNBtQytSrlgakwvvtegzuW7W6IMM
+    db: chotot_crawling
+    port: 5432
+data:
+    categories: [1010,1020,1030,1040]
+    offset: 100
+    limit: 100
+href: https://gateway.chotot.com/v1/public/ad-listing?
+table:
+    {'property_info':['ad_id','list_time','category','account_id','subject','body','area_v2','region_v2','price','price_string','image','ward','price_million_per_m2','location','longitude','latitude','shop_alias']
+      ,'categories':['category','category_name']
+      ,'cities':['region_v2','region_name']
+      ,'district':['area_v2','area_name']
+      ,'ward':['ward','ward_name']
+      ,'user_profile':['account_id','account_name']
+      ,'shop_profile':['shop.alias', 'shop.status','shop.name', 'shop.address', 'shop.profileImageUrl', 'shop.createdDate']
+      ,'dates':['list_time']
+    }
+process: {
+    property_info: {'ad_id':id,'category': 'category_id', 'area_v2': 'district_id','region_v2':'cities_id','ward':'ward_id','shop_alias':'shop_id'}
+    ,categories: {'category':id}
+    ,cities: {'region_v2': 'id', 'region_name': 'cities_name'}
+    ,district: {'area_v2': 'id', 'area_name': 'district_name'}
+    ,ward: {'ward': 'id'}
+    ,user_profile: {'account_id': 'id'}
+    ,shop_profile: {'shop.alias': 'id', 'shop.status': 'shop_status','shop.name':'shop_name','shop.address':'shop_address','shop.profileImageUrl':'shop_profile_url','shop.createdDate':'shop_createdate'}
+    ,dates: {'list_time':'id'}
+}
+user_map: {
+    0: property_info_2
+    ,1: categories_2
+    ,2: cities_2
+    ,3: district_2
+    ,4: ward_2
+    ,5: user_profile_2
+    ,6: shop_profile_2
+    ,7: dates_2
+}
