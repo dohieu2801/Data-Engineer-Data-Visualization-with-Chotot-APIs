@@ -32,6 +32,7 @@ def main():
         df = crawler()
         logger.info(f'Crawl sucessful -------------------------')
         list_dataframe= create_table(df)
+        # print(list_dataframe[0])
         logger.info(f'generate sucess -------------------------')
         list_dataframe_process = split_process_df(list_dataframe)
         logger.info(f'Process complete -------------------------')

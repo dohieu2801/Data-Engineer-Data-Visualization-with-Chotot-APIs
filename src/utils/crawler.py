@@ -22,7 +22,7 @@ def crawler():
         offset_var = 0
         limit_var = 100
         categories = cate_list[cate]
-        for i in range(0, 200):
+        for i in range(0, 10):
             response_API = requests.get(href + "limit=" + str(offset) + "&o=" + str(limit) + "&cg=" + str(categories) + "&st=s,k")
             if response_API.status_code==200:
                 data = response_API.text
