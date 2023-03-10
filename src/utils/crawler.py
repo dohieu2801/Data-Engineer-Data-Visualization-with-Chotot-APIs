@@ -18,7 +18,7 @@ def crawler():
     href = cfg['href']
     data_crawl = []
     df = pd.DataFrame()
-    for cate in range(len(cate_list)):
+        for cate in range(len(cate_list)):
         offset_var = 0
         limit_var = 100
         # respone_total =requests.get(href +"&cg=" + str(cate_list[cate]) + "&st=s,k")
