@@ -18,15 +18,11 @@ def crawler():
     href = cfg['href']
     data_crawl = []
     df = pd.DataFrame()
-        for cate in range(len(cate_list)):
+    for cate in range(len(cate_list)):
         offset_var = 0
         limit_var = 100
-        # respone_total =requests.get(href +"&cg=" + str(cate_list[cate]) + "&st=s,k")
-        # data_total = respone_total.text
-        # load_total = json.loads(data_total)
-        # total = int(load_total['total']/limit_var)
         categories = cate_list[cate]
-        for i in range(0, 100):
+        for i in range(0, 200):
             response_API = requests.get(href + "limit=" + str(offset) + "&o=" + str(limit) + "&cg=" + str(categories) + "&st=s,k")
             if response_API.status_code==200:
                 data = response_API.text
@@ -38,5 +34,5 @@ def crawler():
                     new_df = pd.json_normalize(json_load['ads'])
                     df = df.append(new_df)
                 offset_var = offset_var + limit_var
-        cate = cate + 1
+    cate = cate + 1
     return df

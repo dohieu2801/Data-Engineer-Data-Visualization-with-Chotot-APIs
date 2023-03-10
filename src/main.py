@@ -41,7 +41,7 @@ def main():
             logger.info(f'Successully insert {map_info[i]}')
     except Exception as e:
         logger.error(f'Fail with error {e}')
-        logger.error(f'Fail to insert {map_info[i]} with error {e}')
+        # logger.error(f'Fail to insert {map_info[i]} with error {e}')
         pass
 if __name__ == "__main__":
     main()
