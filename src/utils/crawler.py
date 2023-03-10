@@ -26,15 +26,17 @@ def crawler():
         # load_total = json.loads(data_total)
         # total = int(load_total['total']/limit_var)
         categories = cate_list[cate]
-        for i in range(0, 200):
+        for i in range(0, 100):
             response_API = requests.get(href + "limit=" + str(offset) + "&o=" + str(limit) + "&cg=" + str(categories) + "&st=s,k")
-            data = response_API.text
-            json_load = json.loads(data.replace('}]}"},', '}]}"}'))
-            if df.shape[0] == 0:
-                df = pd.json_normalize(json_load['ads'])
-            else:
-                new_df = pd.json_normalize(json_load['ads'])
-                df = df.append(new_df)
-            offset_var = offset_var + limit_var
+            if response_API.status_code==200:
+                data = response_API.text
+                # json_load = json.loads(data.replace('}]}"},', '}]}"}'))
+                json_load = json.loads(data)
+                if df.shape[0] == 0:
+                    df = pd.json_normalize(json_load['ads'])
+                else:
+                    new_df = pd.json_normalize(json_load['ads'])
+                    df = df.append(new_df)
+                offset_var = offset_var + limit_var
         cate = cate + 1
     return df
