@@ -8,10 +8,14 @@ Information about API, table, columns in table and map table which is supply by 
 Write info, error when run code.
 ## 3.src/utils include: 
 Crawler to crawl data
+
 Generate table to parse table which I want
+
 Process to process data: rename columns, remove duplicates, drop na, caculate somethings...
+
 Push data to insert data to postgre.
 ## 4.src/main:
 To run code: /bin/python3 {path}
 I set cron job * /30 * * * *
+
 Next, I will get information and visualization to get decision for property.
