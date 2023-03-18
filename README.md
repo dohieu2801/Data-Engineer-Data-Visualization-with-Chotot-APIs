@@ -38,6 +38,8 @@ Finally, we have price map tab which user can search property by map. You can ma
 
 Above are a few tools to help users make basic judgments and choose real estate products that match their criteria.
 
+This is link for pbix file: https://drive.google.com/file/d/1dTkTLPyh1C2VtwipVGUKH4Ktw-Qvaa84/view?usp=share_link
+
 
 
 
