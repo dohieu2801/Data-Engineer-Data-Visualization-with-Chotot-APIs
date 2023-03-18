@@ -19,3 +19,25 @@ To run code: /bin/python3 {path}
 I set cron job * /30 * * * *
 
 Next, I will get information and visualization to get decision for property.
+
+Firstly, I have some metric: price property, number shop which live at page...
+
+![image](https://user-images.githubusercontent.com/92812173/226100930-add04781-c415-4661-ac80-ed248540c6c1.png)
+
+Secondly, Overall table which use for check price property in cities, distrit, ward. Addtionally, we have information: price average, nuber of property by category...
+
+![image](https://user-images.githubusercontent.com/92812173/226101075-440576e2-3852-43a7-a888-d5ee323a780f.png)
+
+Thirdly, Seller tab provided information about: number,price of property which was supply by shop This help we have a good choice.
+
+![image](https://user-images.githubusercontent.com/92812173/226101240-68683d47-0bb8-4fc4-a9b0-abffa50aba64.png)
+
+Finally, we have price map tab which user can search property by map. You can make a visual comparison based on this tab
+
+![image](https://user-images.githubusercontent.com/92812173/226101334-a6506c69-daf1-42a8-adad-7ef77c0cf4c1.png)
+
+Above are a few tools to help users make basic judgments and choose real estate products that match their criteria.
+
+
+
+
