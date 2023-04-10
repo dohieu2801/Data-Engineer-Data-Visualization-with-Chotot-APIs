@@ -1,5 +1,5 @@
-# Project_thanhthuy
-This is project for DE. I crawl data from chotot by API. The, using AWS EC2 with free tier account to transform data.
+# DE and Visualization Project
+I crawl data from chotot by API. The, using AWS EC2 with free tier account to transform data.
 Finally, insert data to postgre which supply by render. It helps many users can querry data at anywhere.
 # Code include:
 ## 1.Config.yaml:
