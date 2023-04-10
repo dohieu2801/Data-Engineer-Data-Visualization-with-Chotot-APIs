@@ -14,7 +14,7 @@ Generate table to parse table which I want
 Process to process data: rename columns, remove duplicates, drop na, caculate somethings...
 
 Push data to insert data to postgre.
-## 4.src/main:
+## 4.Data Visulaization with Power BI:
 To run code: /bin/python3 {path}
 I set cron job * /30 * * * *
 
